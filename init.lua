@@ -271,6 +271,7 @@ require('lazy').setup({
   { -- Adds git related signs to the gutter, as well as utilities for managing changes
     'lewis6991/gitsigns.nvim',
     opts = {
+      current_line_blame = true,
       signs = {
         add = { text = '+' },
         change = { text = '~' },
@@ -690,6 +691,8 @@ require('lazy').setup({
       local ensure_installed = vim.tbl_keys(servers or {})
       vim.list_extend(ensure_installed, {
         'stylua', -- Used to format Lua code
+        'prettier',
+        { 'eslint_d', version = '13.1.2' },
       })
       require('mason-tool-installer').setup { ensure_installed = ensure_installed }
 
@@ -728,7 +731,14 @@ require('lazy').setup({
         -- Disable "format_on_save lsp_fallback" for languages that don't
         -- have a well standardized coding style. You can add additional
         -- languages here or re-enable it for the disabled ones.
-        local disable_filetypes = { c = true, cpp = true }
+        local disable_filetypes = {
+          c = true,
+          cpp = true,
+          -- javascript = true,
+          -- typescript = true,
+          -- javascriptreact = true,
+          -- typescriptreact = true,
+        }
         local lsp_format_opt
         if disable_filetypes[vim.bo[bufnr].filetype] then
           lsp_format_opt = 'never'
@@ -741,12 +751,27 @@ require('lazy').setup({
         }
       end,
       formatters_by_ft = {
+        javascript = { 'prettier' },
+        typescript = { 'prettier' },
+        javascriptreact = { 'prettier' },
+        typescriptreact = { 'prettier' },
+        css = { 'prettier' },
+        html = { 'prettier' },
+        json = { 'prettier' },
+        yaml = { 'prettier' },
+        markdown = { 'prettier' },
+        graphql = { 'prettier' },
         lua = { 'stylua' },
         -- Conform can also run multiple formatters sequentially
         -- python = { "isort", "black" },
         --
         -- You can use 'stop_after_first' to run the first available formatter from the list
         -- javascript = { "prettierd", "prettier", stop_after_first = true },
+      },
+      formatters = {
+        prettier = {
+          prepend_args = { '--single-quote', '--print-width', '100', '--no-semi' },
+        },
       },
     },
   },
@@ -771,12 +796,12 @@ require('lazy').setup({
           -- `friendly-snippets` contains a variety of premade snippets.
           --    See the README about individual language/framework/plugin snippets:
           --    https://github.com/rafamadriz/friendly-snippets
-          -- {
-          --   'rafamadriz/friendly-snippets',
-          --   config = function()
-          --     require('luasnip.loaders.from_vscode').lazy_load()
-          --   end,
-          -- },
+          {
+            'rafamadriz/friendly-snippets',
+            config = function()
+              require('luasnip.loaders.from_vscode').lazy_load()
+            end,
+          },
         },
       },
       'saadparwaiz1/cmp_luasnip',
@@ -839,16 +864,16 @@ require('lazy').setup({
           --
           -- <c-l> will move you to the right of each of the expansion locations.
           -- <c-h> is similar, except moving you backwards.
-          ['<C-l>'] = cmp.mapping(function()
-            if luasnip.expand_or_locally_jumpable() then
-              luasnip.expand_or_jump()
-            end
-          end, { 'i', 's' }),
-          ['<C-h>'] = cmp.mapping(function()
-            if luasnip.locally_jumpable(-1) then
-              luasnip.jump(-1)
-            end
-          end, { 'i', 's' }),
+          -- ['<C-l>'] = cmp.mapping(function()
+          --   if luasnip.expand_or_locally_jumpable() then
+          --     luasnip.expand_or_jump()
+          --   end
+          -- end, { 'i', 's' }),
+          -- ['<C-h>'] = cmp.mapping(function()
+          --   if luasnip.locally_jumpable(-1) then
+          --     luasnip.jump(-1)
+          --   end
+          -- end, { 'i', 's' }),
 
           -- For more advanced Luasnip keymaps (e.g. selecting choice nodes, expansion) see:
           --    https://github.com/L3MON4D3/LuaSnip?tab=readme-ov-file#keymaps
@@ -867,15 +892,25 @@ require('lazy').setup({
     end,
   },
 
+  {
+    'rose-pine/neovim',
+    name = 'rose-pine',
+    lazy = false,
+    -- config = function()
+    --   vim.cmd 'colorscheme rose-pine-moon'
+    --   vim.cmd.hi 'Comment gui=none'
+    -- end,
+  },
+
   { -- Color scheme
     'catppuccin/nvim',
     name = 'catppuccin',
     lazy = false,
     priority = 1000,
-    config = function()
-      vim.cmd.colorscheme 'catppuccin-frappe'
-      vim.cmd.hi 'Comment gui=none'
-    end,
+    -- config = function()
+    --   vim.cmd.colorscheme 'catppuccin-mocha'
+    --   vim.cmd.hi 'Comment gui=none'
+    -- end,
   },
 
   {
@@ -883,7 +918,31 @@ require('lazy').setup({
     lazy = false,
     priority = 1000,
     opts = {},
-    -- config = function() end,
+    config = function()
+      vim.cmd.colorscheme 'tokyonight-storm'
+    end,
+  },
+
+  { -- Top
+    'EdenEast/nightfox.nvim',
+    lazy = false,
+    priority = 1000,
+    config = function()
+      -- vim.cmd.colorscheme 'nightfox'
+      -- vim.cmd.colorscheme 'nordfox'
+      -- vim.cmd.hi 'Comment gui=none'
+    end,
+  },
+
+  {
+    'bluz71/vim-nightfly-colors',
+    name = 'nightfly',
+    lazy = false,
+    priority = 1000,
+    -- config = function()
+    --   vim.cmd.colorscheme 'nightfly'
+    --   vim.cmd.hi 'Comment gui=none'
+    -- end,
   },
 
   {
@@ -891,7 +950,10 @@ require('lazy').setup({
     name = 'github-theme',
     lazy = false, -- make sure we load this during startup if it is your main colorscheme
     priority = 1000, -- make sure to load this before all the other start plugins
-    -- config = function() end,
+    -- config = function()
+    --   vim.cmd.colorscheme 'github_dark'
+    --   vim.cmd.hi 'Comment gui=none'
+    -- end,
   },
 
   { -- You can easily change to a different colorscheme.

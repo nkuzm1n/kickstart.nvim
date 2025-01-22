@@ -14,6 +14,11 @@ return {
       },
       icons = {
         separator_at_end = false,
+        gitsigns = {
+          added = { enabled = true, icon = '+' },
+          changed = { enabled = true, icon = '~' },
+          deleted = { enabled = true, icon = '-' },
+        },
       },
       no_name_title = 'No name',
     }
